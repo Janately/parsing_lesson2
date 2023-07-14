@@ -2,7 +2,7 @@ import requests
 import csv
 from bs4 import BeautifulSoup as BS
 
-URL = 'https://svetofor.info/sotovye-telefony-i-aksessuary/vse-smartfony/smartfony-s-podderzhkoy-4g-ru/'
+BASE_URL = 'https://svetofor.info/sotovye-telefony-i-aksessuary/vse-smartfony/smartfony-s-podderzhkoy-4g-ru/'
 
 
 
@@ -20,9 +20,18 @@ def get_data(soup):
     list_data = []
 
     for phone in phones:
-        title = phone.find('a', class_ ='product-title').text.strip()
-        image = phone.find('img', class_='ty-pict').get('data-ssrc')
-        price = phone.find('span', class_ = 'ty-price-update').text
+        try:
+            title = phone.find('a', class_ ='product-title').text.strip()
+        except:
+            title = ''
+        try:
+            image = phone.find('img', class_='ty-pict').get('data-ssrc')
+        except:
+            image = ''
+        try:    
+            price = phone.find('span', class_ = 'ty-price-update').text
+        except:
+            price = ''
 
         list_data.append({
             'title': title,
@@ -39,10 +48,14 @@ def write_csv(data):
 
 
 def main():
-    html = get_html(URL)
-    soup = get_soup(html)
-    data = get_data(soup)
-    write_csv(data)
+    for i in range(1,14):
+        url = BASE_URL + f'page-{i}/'
+        
+        html = get_html(url)
+        soup = get_soup(html)
+        data = get_data(soup)
+        write_csv(data)
 
+        print(f'спарсили - {i} страницу')
 if __name__ == '__main__':
     main()
